@@ -1,4 +1,5 @@
-import React, {PropTypes} from 'react'
+import React from 'react'
+import PropTypes from 'prop-types'
 import ReactDOM, {unstable_renderSubtreeIntoContainer as renderSubtreeIntoContainer} from 'react-dom'
 import assign from 'object-assign'
 
@@ -52,7 +53,7 @@ class Card extends React.Component {
       transition: `${this.state.transition} .3s ease-in-out, visibility .3s ease-in-out`,
       opacity: this.state.hover || this.props.active ? 1 : 0,
       visibility: this.state.hover || this.props.active ? 'visible' : 'hidden',
-      zIndex: 50
+      zIndex: 1050
     }
 
     assign(style, this.getStyle(this.props.position, this.props.arrow))
@@ -447,12 +448,14 @@ export default class ToolTip extends React.Component {
     parent: PropTypes.string.isRequired,
     active: PropTypes.bool,
     group: PropTypes.string,
-    tooltipTimeout: PropTypes.number
+    tooltipTimeout: PropTypes.number,
+    rerender: PropTypes.number
   }
   static defaultProps = {
     active: false,
     group: 'main',
-    tooltipTimeout: 500
+    tooltipTimeout: 500,
+    rerender: 0
   }
   componentDidMount() {
     if (!this.props.active) {
@@ -462,11 +465,12 @@ export default class ToolTip extends React.Component {
     this.renderPortal(this.props)
   }
   componentWillReceiveProps(nextProps) {
-    if ((!portalNodes[this.props.group] && !nextProps.active) ||
-      (!this.props.active && !nextProps.active)) {
-      return
+    if (!nextProps.rerender) {
+      if ((!portalNodes[this.props.group] && !nextProps.active) ||
+        (!this.props.active && !nextProps.active)) {
+        return
+      }
     }
-
     let props = assign({}, nextProps)
     let newProps = assign({}, nextProps)
 
